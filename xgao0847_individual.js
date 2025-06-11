@@ -1,6 +1,6 @@
 let grid  = 20;
-let wide = 34 * grid;
-let height = wide;
+let wide;
+let height;
 
 let colour = {
     W : '#ffffff',
@@ -34,14 +34,27 @@ let origBlocks = [
 
 ];
 
+let minCol = Math.min(...origBlocks.map(b => b.col));
+let maxCol = Math.max(...origBlocks.map(b => b.col + b.w));
+let minRow = Math.min(...origBlocks.map(b => b.row));
+let maxRow = Math.max(...origBlocks.map(b => b.row + b.h));
+
+let contentWidth  = (maxCol - minCol) * grid;
+let contentHeight = (maxRow - minRow) * grid;
+wide = contentWidth + grid * 4;
+height = contentHeight + grid * 4;
+
+let offsetX = (wide - contentWidth) / 2 - minCol * grid;
+let offsetY = (height - contentHeight) / 2 - minRow * grid;
+
 let blocks = [];
 origBlocks.forEach(def => {
     for (let i = 0; i < def.w; i++) {
     for (let j = 0; j < def.h; j++) {
         blocks.push({
         w:1, h:1, colour:def.colour,
-        targetX: (def.col + i) * grid,
-        targetY: (def.row + j) * grid,
+        targetX: (def.col + i) * grid + offsetX,
+        targetY: (def.row + j) * grid + offsetY,
         x: 0,
         y: 0,
         vx: 0,
@@ -73,8 +86,8 @@ function setup() {
 function draw() {
     background(colour.W);    
     fill(colour.Y);
-    vLines.forEach(c => rect(c * grid, 0, grid, height));
-    hLines.forEach(r => rect(0, r * grid, wide, grid));
+    vLines.forEach(c => rect(c * grid + offsetX, 0, grid, height));
+    hLines.forEach(r => rect(0, r * grid + offsetY, wide, grid));
 
     let now = millis();
     const collisionCooldown = 300;
