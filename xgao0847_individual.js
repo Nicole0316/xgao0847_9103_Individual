@@ -39,6 +39,7 @@ let hDashPositions = [];
 
 function setup() {
     createCanvas(wide, height);
+    noStroke();
     startTime = millis();
     lastDashTime = startTime;              
     updateDashes();                           
