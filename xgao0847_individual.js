@@ -23,6 +23,15 @@ let origBlocks = [
     {col:11, row:22, w:3, h:3, colour:colour.R},
     {col:11, row:28, w:1, h:1, colour:colour.G},
     {col:15, row:28, w:1, h:1, colour:colour.B},
+
+{col: 3, row: 13, w: 2, h: 1, colour: colour.R},
+{col: 21, row: 27, w: 1, h: 2, colour: colour.R},
+
+{col: 7, row: 1, w: 1, h: 1, colour: colour.B},
+{col: 29, row: 16, w: 1, h: 2, colour: colour.B},
+
+{col: 12, row: 19, w: 2, h: 1, colour: colour.G},
+
 ];
 
 let blocks = [];
@@ -37,7 +46,8 @@ origBlocks.forEach(def => {
         y: 0,
         vx: 0,
         vy: 0,
-        landed: false
+        landed: false,
+        lastCollision: 0
         });
     }
     }
@@ -51,12 +61,13 @@ function setup() {
     createCanvas(wide, height);
     noStroke(); 
     blocks.forEach(b => {
-    b.x  = random(0, wide - grid);
-    b.y  = random(-height, -grid);
-    b.vx = random(-2, 2);
+    b.x  = random(-grid * 2, wide - grid + grid * 2);
+    b.y  = random(-height * 2, -grid);
+    b.vx = random(-3, 3);
     b.vy = 0;
     b.landed = false;
-});                 
+});
+
 }
 
 function draw() {
@@ -65,21 +76,42 @@ function draw() {
     vLines.forEach(c => rect(c * grid, 0, grid, height));
     hLines.forEach(r => rect(0, r * grid, wide, grid));
 
-    let g = 0.2;
-    let friction = 0.99;
+    let now = millis();
+    const collisionCooldown = 300;
+    const bounceFactor       = 1.5;
+    let g = 0.1;
+    let friction = 1;
 
 blocks.forEach((b, idx) => {
 if (!b.landed) {
     b.vy += g;          
     b.y  += b.vy;
     b.vx *= friction;    
-    b.x  += b.vx;        
+    b.x  += b.vx;
+
+if (b.x < 0) {
+    b.x = 0;
+    b.vx *= -0.8;
+}
+if (b.x + grid > wide) {
+    b.x = wide - grid;
+    b.vx *= -0.8;
+}
+if (b.y < 0) {
+    b.y = 0;
+    b.vy *= -0.8;
+}
 
     if (b.y >= b.targetY) {
-    b.y = b.targetY;
-    b.vy = 0;
-    b.landed = true;
+        b.y = b.targetY;
+        b.vy *= -0.7;
+        if (abs(b.vy) < 0.5) {
+            b.vy = 0;
+            b.landed = true;
+            b.x = b.targetX;
+        }
     }
+
 }
 
 for (let j = idx + 1; j < blocks.length; j++) {
