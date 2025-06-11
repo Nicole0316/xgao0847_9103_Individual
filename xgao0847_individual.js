@@ -47,6 +47,9 @@ height = contentHeight + grid * 4;
 let offsetX = (wide - contentWidth) / 2 - minCol * grid;
 let offsetY = (height - contentHeight) / 2 - minRow * grid;
 
+let dotColors = [];
+let lastColorUpdate = 0;
+
 let blocks = [];
 origBlocks.forEach(def => {
     for (let i = 0; i < def.w; i++) {
@@ -66,16 +69,49 @@ origBlocks.forEach(def => {
     }
 });
 
+for (let i = 4; i < 28; i += 2) {
+for (let j = 4; j < 28; j += 2) {
+    let c = random([colour.R, colour.B, colour.G]);
+    blocks.push({
+    w: 1,
+    h: 1,
+    colour: c,
+      targetX: i * grid + offsetX,
+      targetY: j * grid + offsetY,
+    x: 0,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    landed: false,
+    lastCollision: 0
+    });
+}
+}
+
 
 let vLines = [1, 3, 7, 12, 21, 29, 32];
 let hLines = [1, 5, 11, 13, 16, 19, 27, 32];
 
 function setup() {
     createCanvas(wide, height);
-    noStroke(); 
-    blocks.forEach(b => {
-    b.x  = random(-grid * 2, wide - grid + grid * 2);
-    b.y  = random(-height * 2, -grid);
+    noStroke();
+
+let lineCols = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31];
+let lineRows = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31];
+
+lineCols.forEach(col => {
+    lineRows.forEach(row => {
+    dotColors.push({
+    x: col * grid + offsetX,
+    y: row * grid + offsetY,
+    c: random([colour.Y, colour.W, colour.G])
+    });
+    });
+});
+
+blocks.forEach(b => {
+  b.x  = random(-grid * 2, wide - grid + grid * 2);
+  b.y  = random(-height * 2, -grid);
     b.vx = random(-3, 3);
     b.vy = 0;
     b.landed = false;
@@ -84,12 +120,22 @@ function setup() {
 }
 
 function draw() {
-    background(colour.W);    
-    fill(colour.Y);
-    vLines.forEach(c => rect(c * grid + offsetX, 0, grid, height));
-    hLines.forEach(r => rect(0, r * grid + offsetY, wide, grid));
+    background(colour.W);
 
     let now = millis();
+if (now - lastColorUpdate > 6000) {
+    lastColorUpdate = now;
+    dotColors.forEach(dot => {
+    dot.c = random([colour.Y, colour.W, colour.G]);
+    });
+}
+
+dotColors.forEach(dot => {
+    fill(dot.c);
+    rect(dot.x, 0, grid, height);
+    rect(0, dot.y, wide, grid);
+});
+
     const collisionCooldown = 300;
     const bounceFactor       = 1.5;
     let g = 0.1;
@@ -141,7 +187,7 @@ for (let j = idx + 1; j < blocks.length; j++) {
     }
     }
 
-    fill(b.colour);
+    fill(red(b.colour), green(b.colour), blue(b.colour), 220);
     rect(b.x, b.y, b.w * grid, b.h * grid);
     });
 }
