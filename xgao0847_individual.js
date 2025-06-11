@@ -69,8 +69,8 @@ origBlocks.forEach(def => {
     }
 });
 
-for (let i = 4; i < 28; i += 2) {
-for (let j = 4; j < 28; j += 2) {
+for (let i = 4; i < 28; i += 1) {
+for (let j = 4; j < 28; j += 1) {
     let c = random([colour.R, colour.B, colour.G]);
     blocks.push({
     w: 1,
@@ -187,7 +187,7 @@ for (let j = idx + 1; j < blocks.length; j++) {
     }
     }
 
-    fill(red(b.colour), green(b.colour), blue(b.colour), 220);
+    fill(b.colour);
     rect(b.x, b.y, b.w * grid, b.h * grid);
     });
 }
